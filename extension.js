@@ -37,20 +37,17 @@ WindowZoomExtension.prototype = {
 		global.log("_init");
 		this._gc = null;
 		this._ev = null;
-		this._window = null;
 	},
 
 	_onGlobalKeyBinding: function(d, s, w, e, b) {
 		global.log('in _onGlobalKeyBinding', d, s, w, this._gc);
 
-		this._window = w;
 		this._grab();
 	},
 
 	_onGcKeyRelease: function() {
 		global.log("in _onGcKeyRelease");
 		this._release_grab();
-		this._window = null;
 	},
 
 	_grab: function() {
@@ -91,15 +88,23 @@ WindowZoomExtension.prototype = {
 
 	_onScroll: function(actor, event) {
 		let direction = event.get_scroll_direction();
-		let actor = this._window.get_compositor_private();
+		let [stageX,stageY] = event.get_coords();
+		let actor = global.stage.get_actor_at_pos(Clutter.PickMode.REACTIVE, stageX, stageY);
+
+		actor = actor.get_parent();
+
 		let [xs,ys] = actor.get_scale();
+
+		if (!(actor instanceof Meta.WindowActor)) {
+			global.log(actor,"parent is not a WindowActor");
+			return;
+		}
 
 		if (direction == Clutter.ScrollDirection.UP) {
 			actor.set_scale(xs+0.1, ys+0.1);
 		} else if (direction == Clutter.ScrollDirection.DOWN) {
 			actor.set_scale(Math.max(xs-0.1, 0.1), Math.max(ys-0.1,0.1));
 		}
-
 	},
 
     _getPreferredWidth: function(actor, forHeight, alloc) {
@@ -142,7 +147,7 @@ WindowZoomExtension.prototype = {
 		this._gc.add_actor(this._ev);
 
 		Meta.keybindings_set_custom_handler(
-			'move-to-workspace-right',
+			'switch-to-workspace-right',
 			Lang.bind(this, this._onGlobalKeyBinding)
 		);
 
