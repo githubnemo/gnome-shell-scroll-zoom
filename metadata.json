@@ -1,0 +1,9 @@
+{
+  "description": "Press a key combination to use the scroll wheel for zooming the window you are pointing on.",
+  "name": "Scroll Zooom",
+  "shell-version": [
+	"3.16"
+  ],
+  "url": "",
+  "uuid": "scrollzoom@ikkoku.de"
+}
