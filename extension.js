@@ -89,6 +89,19 @@ WindowZoomExtension.prototype = {
         this._ev.allocate(childBox, flags);
 	},
 
+	_onScroll: function(actor, event) {
+		let direction = event.get_scroll_direction();
+		let actor = this._window.get_compositor_private();
+		let [xs,ys] = actor.get_scale();
+
+		if (direction == Clutter.ScrollDirection.UP) {
+			actor.set_scale(xs+0.1, ys+0.1);
+		} else if (direction == Clutter.ScrollDirection.DOWN) {
+			actor.set_scale(Math.max(xs-0.1, 0.1), Math.max(ys-0.1,0.1));
+		}
+
+	},
+
     _getPreferredWidth: function(actor, forHeight, alloc) {
         let primary = Main.layoutManager.primaryMonitor;
 
@@ -118,7 +131,7 @@ WindowZoomExtension.prototype = {
                                               vertical: false,
                                               reactive: true });
 
-		this._ev.connect('scroll-event', function() { global.log('gc se'); })
+		this._ev.connect('scroll-event', Lang.bind(this, this._onScroll));
 		this._ev.connect('key-press-event', function() {
 			global.log('gc kpe');
 
